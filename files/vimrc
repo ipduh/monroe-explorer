@@ -1,0 +1,43 @@
+"g0 de ipduh srv vimrc
+
+if has("syntax")
+    syntax on
+endif
+
+set modeline
+set modelines=5
+
+set noexpandtab
+
+autocmd BufRead,BufNewFile   *.pl,*.c,*.h,*.sh,*.html,*.js set noic cin expandtab shiftwidth=2 tabstop=2
+autocmd BufRead,BufNewFile   *.py set shiftwidth=4 tabstop=4
+
+""Two spaces tab
+set shiftwidth=2
+set tabstop=2
+
+"Search highlighting
+set hlsearch
+
+"C style indentation
+set cindent
+
+"show a visual line under the cursor's current line
+set cursorline
+
+"show the matching part of the pair for [] {} and ()
+set showmatch
+
+"Shift K for perldoc -- good? steal?
+set keywordprg=perldoc\ -f
+
+"enable all Python syntax highlighting features
+let python_highlight_all = 1
+
+"auto chmod bitches ( after each write and then autoload ok? ... annoying after a while )
+"autocmd BufWritePost *.pl !chmod +x %
+"autocmd BufWritePost *.sh !chmod +x %
+
+"remove trailing space on :w
+autocmd BufWritePre * :%s/\s\+$//e
+
