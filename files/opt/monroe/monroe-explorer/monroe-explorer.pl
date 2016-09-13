@@ -7,6 +7,8 @@ use LWP;
 use File::Basename;
 use Net::DNS;
 use Data::Dumper;
+use Socket;
+require 'sys/ioctl.ph';
 
 #use v5.10;
 my $VERSION = '0.1';
@@ -14,12 +16,12 @@ my ($myname, $mypath, $mysuffix) = fileparse( $0, qr/\.[^.]*$/ );
 
 
 =head1 Description
- A little piece of software that logs system and network setup
- and runs a few network probes for numbers and names set in its config, viz:
-  traceroute, traceroute over TCP 80, httping, DNS lookups
-  along with logging your public IP address, checking if HTTP is proxied
-  and if your local caching DNS answers the same way with some Open Internet Caching DNS service.
- Written while I was getting acquainted with the Monroe Testbed.
+A piece of software that logs system and network setup
+and runs network probes for numbers and names set in its config, viz:
+traceroute, traceroute over TCP 80, httping, and DNS lookups.
+It also logs your public IP address, checks if HTTP is proxied
+and if your local caching DNS answer the same way with some open Internet caching DNS service.
+It was written while I was getting acquainted with the Monroe testbed.
 
 =cut
 
@@ -47,6 +49,7 @@ my $DEFAULT_DNS_UDP_TIMEOUT = 30;
 my $STANZA_SEP = "****\n";
 
 my @debug_log=();
+my @errors=();
 
 #Run $myname without arguments.
 #Edit $myname.conf to configure.
@@ -151,6 +154,68 @@ my @syscom = (
               '/usr/bin/w.procps',
               );
 
+#Not good for interfaces with many IP addresses
+sub get_if_ipa
+{
+my ($iface) = @_;
+my $socket;
+socket($socket, PF_INET, SOCK_STREAM, (getprotobyname('tcp'))[2]) || die "unable to create a socket: $!\n";
+my $buf = pack('a256', $iface);
+  if(ioctl($socket, SIOCGIFADDR(), $buf) && (my @address = unpack('x20 C4', $buf))){
+    return join('.', @address);
+  }
+return undef;
+}
+
+sub network_if_names
+{
+my @if_names=();
+opendir(DIR, '/sys/class/net'); #or
+  while(my $netif = readdir(DIR)){
+    next if($netif =~ m/^\./ or $netif eq 'lo');
+    push(@if_names, $netif)
+  }
+close(DIR);
+return \@if_names;
+}
+
+sub if_to_ip
+{
+my $ipa =`ip a`;
+my @ipa = split('\n' , $ipa);
+
+# not hash --not always 1-1
+# ifname, ip_addr, ip_prefix, if_label if iface has an ip_addr
+my @ifipmap=();
+
+my $ifname='';
+my $iflabel='';
+my $ip='';
+my $prefix='';
+my @tmp=();
+my $tmp='';
+
+for my $line (@ipa){
+  if($line =~ /^[0-9]/){
+    @tmp = split(':', $line);
+    $ifname = $tmp[1];
+    $ifname =~ s/\s+//;
+  }
+  if($line =~ /^\s+inet/){
+    @tmp = split(/\s{1,}/, $line);
+    my @cidr = split('/', $tmp[2]);
+    $ip = $cidr[0];
+    $prefix = $cidr[1];
+
+    #not always at this index, but usually there when it matters
+    $iflabel = $tmp[7];
+
+    push(@ifipmap, "$ifname,$ip,$prefix,$iflabel");
+  }
+}
+  return \@ifipmap;
+}
+
 sub ua_headers
 {
   $Data::Dumper::Terse=1;
@@ -182,7 +247,6 @@ sub getarecords
   }
 }
 
-
 #use constant GETURL => qw(CONTENT HEADERS BEHINDPROXY);
 sub geturl
 {
@@ -208,8 +272,26 @@ sub geturl
     my ($peer_addr, $peer_port) = split(':', $resp->header('Client-Peer'));
     return ($resp->decoded_content, $resp->headers_as_string, $peer_addr, $resp->status_line);
   }
-  logdebug("error: $_[0] => $resp->status_line");
+
+  #logdebug("error: $_[0] => $resp->status_line");
+  push(@errors,"error: $_[0] => $resp->status_line");
+
   return (undef, undef, undef, $resp->status_line);
+}
+
+sub log_public_ips
+{
+  my $ifip = if_to_ip();
+    logdebug("Public IP addresses:\n");
+    logdebug("IF_name\t\t\tIP_addr\t\t\tIP_Prefix\t\t\tIF_Label\t\tPublic_Internet_IP_addr");
+  for my $entry (@$ifip){
+    my ($ifname, $ip_addr, $ip_prefix, $if_label) = split(',', $entry);
+    next if($ifname eq 'lo');
+    $getter->local_address($ip_addr);
+    my ($myip, $headers, $peer_addr, $status) = geturl($MYIPURI);
+    chomp($myip);
+    logdebug("$ifname\t\t\t$ip_addr\t\t\t$ip_prefix\t\t\t$if_label\t\t$myip");
+  }
 }
 
 sub is_http_proxied
@@ -235,7 +317,7 @@ sub ldns_goodns_mismatch
   return 0;
 }
 
-sub node_public_ip
+sub node_public_ip # default
 {
   my ($content, $headers, $peer_addr, $status) = geturl($MYIPURI);
   logdebug("Node Internet IP address: $content");
@@ -349,8 +431,11 @@ write_a_com_log($SYSTEM_SETUP_LOG, \@syscom);
 
 write_a_com_log($NETWORK_SETUP_LOG, \@netcom);
 
+log_public_ips();
+
 network_probes();
 
+logdebug(@errors);
 logdebug("${myname}.v$VERSION: I am done.");
 
 write_debug_log;
