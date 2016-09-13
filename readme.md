@@ -22,7 +22,6 @@ Fights carpal tunnel syndrome and other nasty repetitive stress injuries.
 A piece of software that logs system and network setup
 and runs network probes for numbers and names set in its config, viz:
 traceroute, traceroute over TCP 80, httping, and DNS lookups.
-It also logs your public IP address, checks if HTTP is proxied
+It also logs your public IP address(es), checks if HTTP is proxied
 and if your local caching DNS answer the same way with some open Internet caching DNS service.
-It was written while I was getting acquainted with the Monroe testbed.
 ```
