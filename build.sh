@@ -26,7 +26,9 @@ EOHELP
 exit $1
 }
 
+#
 #CONFIG
+#
 
 #Your docker image MAINTAINER
 MAINTAINER='g0, George Paitaris <github@bot.ipduh.com>'
@@ -48,6 +50,9 @@ TESTRUNNER='run.sh'
 #An one space separated list of the Debian packages you want to install into your image
 DEBPACKS="libnet-dns-perl libclass-xsaccessor-perl libimport-into-perl libmoo-perl libnamespace-clean-perl libsub-exporter-perl libtry-tiny-perl libzmq3-dev"
 
+#An one space separated list of the Debian packages you want to install from Testing into your image
+SIDDEBPACKS="libzmq-ffi-perl"
+
 #Set to 'install' to install vim in your docker image
 #Set to anything else to disable
 VIM='install'
@@ -57,7 +62,9 @@ VIM='install'
 #Set to anything else to disable
 RUN_DOCKER_TRAFFIC_COUNT='yes'
 
+#
 #CONFIG IS DONE
+#
 
 if [ "$VIM" = 'install' ]; then
   DEBPACKS="vim ${DEBPACKS}"
@@ -81,22 +88,42 @@ cat <<STANZANOT
 FROM monroe/base
 MAINTAINER ${MAINTAINER}
 COPY files/opt/monroe/ /opt/monroe/
-COPY files/preferences /etc/apt/preferences
 STANZANOT
+
+if [ -n "$SIDDEBPACKS" ]; then
+  echo 'COPY files/preferences /etc/apt/preferences'
+fi
 
 if [ "$VIM" = 'install' ]; then
   echo 'COPY files/vimrc /etc/vim/vimrc.local'
 fi
 
-echo 'RUN echo "deb http://httpredir.debian.org/debian testing main" >> /etc/apt/sources.list && apt-get update && apt-get install -y \'
+if [ -n "$SIDDEBPACKS" ]; then
+  echo 'RUN echo "deb http://httpredir.debian.org/debian testing main" >> /etc/apt/sources.list && apt-get update && apt-get install -y \'
+else
+  echo 'RUN apt-get update && apt-get install -y \'
+fi
 
 for PACKAGE in $DEBPACKS; do
   echo -n "  ${PACKAGE} "
   echo ' \'
 done
 
+if [ -n "$SIDDEBPACKS" ]; then
+
+cat <<WTES
+ && apt-get install -y -t testing $SIDDEBPACKS && apt-get clean
+WTES
+
+else
+
+cat <<NTES
+ && apt-get clean
+NTES
+
+fi
+
 cat <<EOSTANZA
-  && apt-get install -y -t testing libzmq-ffi-perl && apt-get clean
 
 ENTRYPOINT ["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/monroe-explorer/monroe-explorer.pl"]
 EOSTANZA
