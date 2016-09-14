@@ -1,0 +1,15 @@
+Explanation: 990 <= P < 1000
+Explanation: causes a version to be installed even if it does not come from the
+Explanation: target release, unless the installed version is more recent.
+Explanation: 0 < P < 100
+Explanation: causes a version to be installed only if there is no installed
+Explanation: version of the package.
+Explanation: g0, Tested, but please let me know if you see something silly.
+Package: *
+Pin: release a=stable
+Pin-Priority: 901
+
+Package: *
+Pin: release o=Debian
+Explanation: Uninstall or do not install any Debian-originated
+Pin-Priority: -101
