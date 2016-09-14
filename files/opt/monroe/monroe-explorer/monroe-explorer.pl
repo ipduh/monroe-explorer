@@ -201,7 +201,9 @@ for my $line (@ipa){
     $ifname = $tmp[1];
     $ifname =~ s/\s+//;
   }
-  if($line =~ /^\s+inet/){
+  #speed up, skip IPv6, it appears that the tesbed does not have Internet IPv6 anyways
+  #if($line =~ /^\s+inet/){
+  if($line =~ /^\s+inet/ and $line !~ /^\s+inet6/){
     @tmp = split(/\s{1,}/, $line);
     my @cidr = split('/', $tmp[2]);
     $ip = $cidr[0];
@@ -287,6 +289,10 @@ sub log_public_ips
   for my $entry (@$ifip){
     my ($ifname, $ip_addr, $ip_prefix, $if_label) = split(',', $entry);
     next if($ifname eq 'lo');
+
+    #speed up things
+    next if($ifname =~ /metadata/);
+
     $getter->local_address($ip_addr);
     my ($myip, $headers, $peer_addr, $status) = geturl($MYIPURI);
     chomp($myip);
