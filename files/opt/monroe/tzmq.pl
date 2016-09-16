@@ -84,20 +84,14 @@ sub multi
     #say "CID $nt is done.";
   }
 
-#  for(@threads){
-#    while($_->is_running()){
-#      sleep 1;
-#    }
-#  }
-
 
   print color('red') if(keys %conversations != ($THREADS*$SAYS));
-  say "\n\n Jabbers: ", scalar(keys %conversations);
+  say "\n\n Jabbers in shared_mem: ", scalar(keys %conversations);
   say " $_ -> $conversations{$_}" for(keys %conversations);
   print color('reset') if(keys %conversations != ($THREADS*$SAYS));
 
   print color('red') if(scalar(@results) != ($THREADS*$SAYS));
-  say "\n\n results:" , scalar(@results);
+  say "\n\n Jabbers returned from threads: " , scalar(@results);
   say "$_ " for(@results);
   print color('reset') if(scalar(@results) != ($THREADS*$SAYS));
   say '';
@@ -107,7 +101,7 @@ multi($THREADS, $SAYS);
 
 say "\nglobal_count: $global_count";
 print "sum of in_shared_mem_jabbers: ", scalar(keys %conversations), "\n";
-print "sum of jabbers returned by threads: ", scalar(@results), "\n";
+print "sum of jabbers returned from threads: ", scalar(@results), "\n";
 
 say "chao";
 
