@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# Hello World client in Perl
+# 0MQ Hello World client
 # g0, 2016
 
 use strict;
@@ -8,7 +8,6 @@ use v5.10;
 
 use ZMQ::FFI;
 use ZMQ::FFI::Constants qw(ZMQ_REQ);
-#use zhelpers;
 
 say "Connecting to 0mqlsrv.pl in your host.";
 my $context = ZMQ::FFI->new();
