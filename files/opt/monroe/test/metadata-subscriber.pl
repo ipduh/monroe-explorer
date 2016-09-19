@@ -4,8 +4,8 @@
 =head1 Description
   MONROE metadata subscriber
   edit config stanza
-  or pass IP_address, Port and Topic as arguments in the command line e.g.
-  $ metadata-subscriber.pl 172.17.0.1 5556 MONROE.META.DEVICE.MODEM
+  or pass IP_address, Port, Topic and Duration as arguments in the command line e.g.
+  $ metadata-subscriber.pl 172.17.0.1 5556 MONROE.META.DEVICE.MODEM 50
 =cut
 
 
@@ -22,7 +22,11 @@ use ZMQ::FFI::Constants qw(ZMQ_SUB);
 my $ip = '172.17.0.1';
 my $port = '5556';
 my $topic = '';
-#
+
+# Set to 'until_sigint' or the duration time in seconds
+my $duration = 'until_sigint';
+
+# CONFIG IS DONE
 
 
 if(scalar(@ARGV) > 0){
@@ -35,8 +39,19 @@ if(scalar(@ARGV) > 0){
   if($#ARGV > 1 ){
     $topic = $ARGV[2];
   }
+  if($#ARGV > 2 ){
+    $duration = $ARGV[3];
+  }
 }
 
+my $start = time;
+my $expr = "";
+
+if($duration ne 'until_sigint' && $duration =~ /^\d+$/){
+  $expr = "(time - $start) <= $duration";
+}else{
+  $expr = 1;
+}
 my $topic_description = 'no_topic_description';
 if($topic eq ''){
   $topic_description = 'all topics';
@@ -53,10 +68,13 @@ $subscriber->subscribe($topic);
 my $received_message = 'tipota';
 my @received_message = ();
 
-while(1){
+while(eval $expr){
     $received_message = $subscriber->recv();
     @received_message = split(' ', $received_message, 2);
     say "topic: $received_message[0]";
     say "message: $received_message[1]";
     say '';
 }
+
+say 'bye bye';
+exit 0;
