@@ -15,7 +15,7 @@ import sys
 import json
 
 # CONFIG
-FILENAME = "0mq-metadata.dump"
+FILENAME = "data/metada-00.dump"
 TIMESCALE = 1.0
 MYIP = '172.17.0.1'
 MYPORT = '5556'
