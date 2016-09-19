@@ -6,6 +6,9 @@
 
 =cut
 
+=head1 Author
+  g0, github@bot.ipduh.com
+=cut
 
 use strict;
 use v5.10;
