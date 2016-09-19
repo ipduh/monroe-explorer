@@ -63,9 +63,8 @@ VIM='install'
 RUN_DOCKER_TRAFFIC_COUNT='yes'
 
 
-#ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/monroe-explorer/monroe-explorer.pl"]'
+ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/monroe-explorer/monroe-explorer.pl"]'
 #ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/test/metadata-collector.pl"]'
-ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/test/metadata-collector.pl 1800"]'
 
 #
 #CONFIG IS DONE
