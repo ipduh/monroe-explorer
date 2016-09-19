@@ -10,18 +10,16 @@ use Data::Dumper;
 use Socket;
 require 'sys/ioctl.ph';
 
-#use v5.10;
 my $VERSION = '0.1';
 my ($myname, $mypath, $mysuffix) = fileparse( $0, qr/\.[^.]*$/ );
 
 
 =head1 Description
-A piece of software that logs system and network setup
-and runs network probes for numbers and names set in its config, viz:
+Logs system and network setup
+runs network probes for numbers and names set in its config, viz:
 traceroute, traceroute over TCP 80, httping, and DNS lookups.
-It also logs your public IP address, checks if HTTP is proxied
-and if your local caching DNS answer the same way with some open Internet caching DNS service.
-It was written while I was getting acquainted with the Monroe testbed.
+logs your public IP address, checks if HTTP is proxied
+and if your local caching DNS answers the same way with some open Internet caching DNS service.
 
 =cut
 
@@ -29,9 +27,6 @@ It was written while I was getting acquainted with the Monroe testbed.
 g0, github@bot.ipduh.com
 
 =cut
-
-#Run $myname without arguments.
-#Edit $myname.conf to configure.
 
 my $USAGE =<<"EOU";
 =head1 Usage
@@ -51,16 +46,12 @@ my $STANZA_SEP = "****\n";
 my @debug_log=();
 my @errors=();
 
-#Run $myname without arguments.
-#Edit $myname.conf to configure.
-
 if(@ARGV > 0){
   for my $line (split /\n/, $USAGE){
     print "$line\n" unless ($line =~ /^=.*/);
   }
   exit 3;
 }
-
 
 sub logdebug
 {
@@ -128,7 +119,6 @@ $getter->protocols_allowed(['http' , 'https']);
 $getter->show_progress($VERBOSE_HTTP);
 #$getter->env_proxy;
 #but screw env_proxy
-
 
 my @netcomout = ();
 my @netcom = (
@@ -201,8 +191,8 @@ for my $line (@ipa){
     $ifname = $tmp[1];
     $ifname =~ s/\s+//;
   }
-  #speed up, skip IPv6, it appears that the tesbed does not have Internet IPv6 anyways
   #if($line =~ /^\s+inet/){
+  #speed up, skip IPv6, it appears that the tesbed does not have Internet IPv6 anyways
   if($line =~ /^\s+inet/ and $line !~ /^\s+inet6/){
     @tmp = split(/\s{1,}/, $line);
     my @cidr = split('/', $tmp[2]);
