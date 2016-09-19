@@ -62,6 +62,10 @@ VIM='install'
 #Set to anything else to disable
 RUN_DOCKER_TRAFFIC_COUNT='yes'
 
+
+ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/monroe-explorer/monroe-explorer.pl"]'
+#ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/test/metadata-collector.pl"]'
+
 #
 #CONFIG IS DONE
 #
@@ -125,7 +129,7 @@ fi
 
 cat <<EOSTANZA
 
-ENTRYPOINT ["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/monroe-explorer/monroe-explorer.pl"]
+ENTRYPOINT $ENTRYPOINT
 EOSTANZA
 }
 
@@ -181,10 +185,13 @@ echo "LOCALRESUTLSDIR=${LOCALRESUTLSDIR}"
 if [ "$RUN_DOCKER_TRAFFIC_COUNT"='yes' ]; then
 cat <<'EOST0'
 if [ "$(id -u)" != "0" ]; then
-    echo "In order to measure Docker network traffic I need your"
+    echo "If you like me to measure your Docker network traffic enter your"
     echo -n "Root "
 fi
 TOPNBCC=`su -l root -c "iptables -L DOCKER-ISOLATION -n -v -x |grep RETURN"`
+if [ $? -ne '0' ]; then
+  echo "Docker Traffic Count Calcution is going to be wrong"
+fi
 TOPNBYTECOUNT=`echo "${TOPNBCC}" |awk '{print $2}'`
 EOST0
 fi
@@ -199,6 +206,9 @@ if [ "$(id -u)" != "0" ]; then
     echo -n "Root "
 fi
 TAILNBCC=`su -l root -c "iptables -L DOCKER-ISOLATION -n -v -x |grep RETURN"`
+if [ $? -ne '0' ]; then
+  echo "Docker Traffic Count Calcution is going to be wrong"
+fi
 TAILNBYTECOUNT=`echo "${TAILNBCC}" |awk '{print $2}'`
 EOST1
 fi
