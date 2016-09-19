@@ -11,7 +11,19 @@ use ZMQ::FFI;
 use ZMQ::FFI::Constants qw(ZMQ_REQ);
 use Term::ANSIColor;
 
-my $srvsocket='tcp://172.17.0.1:5555';
+my $ip = '172.17.0.1';
+my $port = '5555';
+
+if(scalar(@ARGV) > 0){
+  if($ARGV[0] =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/ && $1<256 && $2<256 && $3<256 && $4<256){
+    $ip = $ARGV[0];
+   }
+   if($#ARGV > 0 && $ARGV[1] > 0 && $ARGV[1] < 65536){
+    $port = $ARGV[1];
+   }
+}
+
+
 my @threads = ();
 my @results = ();
 my %conversations :shared = ();
@@ -26,11 +38,11 @@ sub talktosrv
   my $message = 'niente';
   my $received_message = 'niente';
   my @jabbers = ();
-  say "CID: $num, attempting to connect to 0mqlsrv.pl ($srvsocket) in your host.";
+  say "CID: $num, attempting to connect to tcp://$ip:$port .";
 
   my $context = ZMQ::FFI->new();
   my $requestor = $context->socket(ZMQ_REQ);
-  $requestor->connect($srvsocket);
+  $requestor->connect("tcp://$ip:$port");
 
   for my $count (1..($reps-1)) {
     $global_count++;
