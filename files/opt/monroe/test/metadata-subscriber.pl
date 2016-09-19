@@ -1,6 +1,17 @@
 #!/usr/bin/perl
-# 0MQ subscriber
 # g0, 2016
+
+=head1 Description
+  MONROE metadata subscriber
+  edit config stanza
+  or pass IP_address, Port and Topic as arguments in the command line e.g.
+  $ metadata-subscriber.pl 172.17.0.1 5556 MONROE.META.DEVICE.MODEM
+=cut
+
+
+=head1 Author
+ g0, github@bot.ipduh.com
+=cut
 
 use strict;
 use v5.10;
@@ -13,12 +24,6 @@ my $port = '5556';
 my $topic = '';
 #
 
-my $topic_description = 'no_topic_description';
-if($topic eq ''){
-  $topic_description = 'all topics';
-}else{
-  $topic_description = $topic;
-}
 
 if(scalar(@ARGV) > 0){
   if($ARGV[0] =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/ && $1<256 && $2<256 && $3<256 && $4<256){
@@ -27,6 +32,16 @@ if(scalar(@ARGV) > 0){
   if($#ARGV > 0 && $ARGV[1] > 0 && $ARGV[1] < 65536){
     $port = $ARGV[1];
   }
+  if($#ARGV > 1 ){
+    $topic = $ARGV[2];
+  }
+}
+
+my $topic_description = 'no_topic_description';
+if($topic eq ''){
+  $topic_description = 'all topics';
+}else{
+  $topic_description = $topic;
 }
 
 say "Subscribing to \" $topic_description \" @ tcp://$ip:$port";
