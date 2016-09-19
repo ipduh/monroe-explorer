@@ -22,7 +22,8 @@ my $start = time;
 my $ip = '172.17.0.1';
 my $port = '5556';
 my $topic = '';
-my $ttl = $ARGV[0] or 600;
+#my $ttl = $ARGV[0] or 600;
+my $ttl = 1800;
 my $dump_is_at = "/monroe/results/$start-". ($start+$ttl) .'.metadata.dump';
 #
 
