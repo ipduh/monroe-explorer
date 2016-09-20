@@ -73,7 +73,7 @@ say     '';
 say     'Messages                        : '. "\t" . scalar(@sorted_seq);
 say     'Missing Messages                : '. "\t" . ($sorted_seq[$#sorted_seq] - $sorted_seq[0] - scalar(@sorted_seq));
 print   'Missing Messages %              : '. "\t" ;
-printf  ("%.2f", (($sorted_seq[$#sorted_seq] - $sorted_seq[0] - scalar(@sorted_seq)) / scalar(@sorted_seq)));
+printf  ("%.2f", (100 * (($sorted_seq[$#sorted_seq] - $sorted_seq[0] - scalar(@sorted_seq)) / scalar(@sorted_seq))));
 say     '%';
 say     'Longer Missing Range of SeqNums : '. "\t" . ($longer_missing_range-1);
 say     '';
