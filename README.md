@@ -71,7 +71,9 @@ Author
 ```
 Description
  Collect MONROE metadata for $ttl in seconds
- Configure @ # CONFIG stanza
+Usage
+  You may pass ttl as the first argument in the command line.
+  BUT Edit CONFIG stanza in source to configure for deployment in the MONROE testbed.
 Author
   g0, github@bot.ipduh.com
 ```

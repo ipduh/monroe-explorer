@@ -3,8 +3,12 @@
 
 =head1 Description
  Collect MONROE metadata for $ttl in seconds
- Configure @ # CONFIG stanza
 
+=cut
+
+=head1 Usage
+  You may pass ttl as the first argument in the command line.
+  BUT Edit CONFIG stanza in source to configure for deployment in the MONROE testbed.
 =cut
 
 =head1 Author
@@ -22,10 +26,10 @@ my $start = time;
 my $ip = '172.17.0.1';
 my $port = '5556';
 my $topic = '';
-#my $ttl = $ARGV[0] or 600;
-my $ttl = 1800;
+my $ttl = $ARGV[0] or 600;
+#my $ttl = 1800;
 my $dump_is_at = "/monroe/results/$start-". ($start+$ttl) .'.metadata.dump';
-#
+# CONFIG IS DONE
 
 my @dump = ();
 
