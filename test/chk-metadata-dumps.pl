@@ -2,8 +2,10 @@
 # g0, 2016
 
 =head1 Description
-  Check metadata dumps by looking at sequence numbers
-
+  Check metadata dumps by looking at sequence numbers.
+  First argument is the dump file.
+  Optional: Use 'v' as the second argument to print the missing sequence numbers.
+  e.g. $ chk-metadata-dump.pl dump.txt v
 =cut
 
 =head1 Author
@@ -13,11 +15,12 @@
 use strict;
 use v5.10;
 
-if(scalar @ARGV != 1){
+if(scalar @ARGV < 1){
   say 'Please give me a metadata-dump file';
   say "e.g. $0 data/1474284722-1474285322.metadata.dump";
   exit 1;
 }
+
 
 my @sequence_numbers = ();
 my @tmp = ();
@@ -32,8 +35,32 @@ close(DUMP);
 
 my @sorted_seq = sort {$a <=> $b} @sequence_numbers;
 
-say     'Messages          : '. "\t" . scalar(@sorted_seq);
-say     'Missing Messages  : '. "\t" . ($sorted_seq[$#sorted_seq] - $sorted_seq[0] - scalar(@sorted_seq));
-print   'Missing Messages %: '. "\t" ;
+my @missing_seq_nums = ();
+my $longer_missing_range = 0;
+my $index = 0;
+for(@sorted_seq){
+  last if($_ == $sorted_seq[$#sorted_seq]);
+  if(($sorted_seq[$index+1] - $_) != 1){
+    my $missing_range = $sorted_seq[$index+1] - $_;
+    $longer_missing_range = $missing_range if($missing_range > $longer_missing_range);
+    for my $j (($_+1)..($_ + $missing_range -1)){
+      push(@missing_seq_nums, $j);
+    }
+  }
+  $index++;
+}
+
+if($ARGV[1] eq 'v'){
+  say "\nMissing Sequence Numbers:";
+  print "$_\n" for(@missing_seq_nums);
+}
+
+
+say     '';
+say     'Messages                        : '. "\t" . scalar(@sorted_seq);
+say     'Missing Messages                : '. "\t" . ($sorted_seq[$#sorted_seq] - $sorted_seq[0] - scalar(@sorted_seq));
+print   'Missing Messages %              : '. "\t" ;
 printf  ("%.2f", (($sorted_seq[$#sorted_seq] - $sorted_seq[0] - scalar(@sorted_seq)) / scalar(@sorted_seq)));
 say     '%';
+say     'Longer Missing Range of SeqNums : '. "\t" . ($longer_missing_range-2);
+say     '';
