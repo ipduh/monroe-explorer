@@ -3,9 +3,14 @@
 
 =head1 Description
   Check metadata dumps by looking at sequence numbers.
+
+=cut
+
+=head1 Usage
   First argument is the dump file.
   Optional: Use 'v' as the second argument to print missing sequence numbers.
   e.g. $ chk-metadata-dump.pl dump.txt v
+
 =cut
 
 =head1 Author
