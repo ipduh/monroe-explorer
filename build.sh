@@ -11,15 +11,14 @@ See CONFIG section for parameterization.
 Aims at easing the build of docker images to be deployed in the MONROE testbed.
 Fights carpal tunnel syndrome and other nasty repetitive stress injuries.
 
-Pulls a docker image (monroe/base by default)
-from the docker hub,
-creates your .docker file,
-builds your docker image
-and writes helper scripts to ease the testing and pushing of your image.
+Pulls a docker image (monroe/base by default) from the docker hub
+Creates the container .docker file ,
+Builds the docker image
+Writes helper scripts that ease local testing and pushing to a repository.
 
 Helper Scripts:
-  run.sh    : run the docker image
-  start.sh  : start and get console to the docker image
+  run.sh    : run the docker container
+  start.sh  : start and get console into the container
   push.sh   : push the docker image to your docker hub repository
 
 EOHELP
@@ -32,6 +31,8 @@ exit $1
 
 #Your docker image MAINTAINER
 MAINTAINER='g0, George Paitaris <github@bot.ipduh.com>'
+
+BASEIMAGE='monroe/base'
 
 #Your docker hub repository
 PUSHCONTAINERTAG='ipduh/monroexplorer'
@@ -63,8 +64,8 @@ VIM='install'
 RUN_DOCKER_TRAFFIC_COUNT='yes'
 
 
-ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/monroe-explorer/monroe-explorer.pl"]'
-#ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/test/metadata-collector.pl"]'
+#ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/monroe-explorer/monroe-explorer.pl"]'
+ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/test/metadata-collector.pl"]'
 
 #
 #CONFIG IS DONE
@@ -89,7 +90,8 @@ function createdotdocker
 {
 echo "# $DOCKERFILE was created on $NOW by $0"
 cat <<STANZANOT
-FROM monroe/base
+#FROM $BASEIMAGE:latest
+FROM $BASEIMAGE
 MAINTAINER ${MAINTAINER}
 COPY files/opt/monroe/ /opt/monroe/
 STANZANOT
@@ -182,18 +184,24 @@ function createtestrunner
 scriptheader $TESTRUNNER
 echo "LOCALRESUTLSDIR=${LOCALRESUTLSDIR}"
 
+
 if [ "$RUN_DOCKER_TRAFFIC_COUNT"='yes' ]; then
+
 cat <<'EOST0'
+TRAFFICFLAG=1
 if [ "$(id -u)" != "0" ]; then
     echo "If you like me to measure your Docker network traffic enter your"
     echo -n "Root "
 fi
 TOPNBCC=`su -l root -c "iptables -L DOCKER-ISOLATION -n -v -x |grep RETURN"`
-if [ $? -ne '0' ]; then
-  echo "Docker Traffic Count Calcution is going to be wrong"
+if [ $? -ne "0" ]; then
+  TRAFFICFLAG=0
+  echo "Unable to measure network traffic."
+  echo "Skipping docker network traffic measurements."
 fi
 TOPNBYTECOUNT=`echo "${TOPNBCC}" |awk '{print $2}'`
 EOST0
+
 fi
 
 echo 'TOP=$(($(date +%s%N)/1000000))'
@@ -201,32 +209,45 @@ echo "docker run -v ${LOCALRESUTLSDIR}:${MONROERESULTSDIR} ${CONTAINER}"
 echo 'TAIL=$(($(date +%s%N)/1000000))'
 
 if [ "$RUN_DOCKER_TRAFFIC_COUNT"='yes' ]; then
+
 cat <<'EOST1'
 if [ "$(id -u)" != "0" ]; then
     echo -n "Root "
 fi
 TAILNBCC=`su -l root -c "iptables -L DOCKER-ISOLATION -n -v -x |grep RETURN"`
-if [ $? -ne '0' ]; then
-  echo "Docker Traffic Count Calcution is going to be wrong"
+if [ $? -ne "0" ]; then
+  TRAFFICFLAG=0
+  echo "Unable to measure network traffic."
+  echo "Skipping docker network traffic measurements."
 fi
 TAILNBYTECOUNT=`echo "${TAILNBCC}" |awk '{print $2}'`
 EOST1
+
 fi
 
+
 cat <<'EOST2'
+
 echo "Contents of ${LOCALRESUTLSDIR}"
 ls -lsht ${LOCALRESUTLSDIR}
 echo -n "Size of ${LOCALRESUTLSDIR} in Bytes: ~"
 du -b --max-depth=0 ${LOCALRESUTLSDIR} |awk '{print $1}'
 ELAPSED_TIME=$((TAIL-TOP))
 echo "Elapsed container run 'real' time: $ELAPSED_TIME milliseconds."
+
 EOST2
 
+
 if [ "$RUN_DOCKER_TRAFFIC_COUNT"='yes' ]; then
+
 cat <<'EOST3'
-NBCOUNT=$((TAILNBYTECOUNT-TOPNBYTECOUNT))
-echo "Docker Traffic Count: $NBCOUNT Bytes."
+if [ "${TRAFFICFLAG}" -eq "1" ]; then
+  NBCOUNT=$((TAILNBYTECOUNT-TOPNBYTECOUNT))
+  echo "Docker Traffic Count: $NBCOUNT Bytes."
+fi
+
 EOST3
+
 fi
 }
 
