@@ -3,25 +3,34 @@
 
 function usage
 {
-cat <<EOHELP
 
-Run $(basename $0) without arguments.
-See CONFIG section for parameterization.
+#=go
+cat <<DESCRIPTION
+
+Run build.sh without arguments.
+See CONFIG section in source for parameterization.
 
 Aims at easing the build of docker images to be deployed in the MONROE testbed.
 Fights carpal tunnel syndrome and other nasty repetitive stress injuries.
 
-Pulls a docker image (monroe/base by default) from the docker hub
-Creates the container .docker file ,
-Builds the docker image
+Pulls a docker image (monroe/base by default) from the docker hub.
+Creates the container .docker file.
+Builds the docker image.
 Writes helper scripts that ease local testing and pushing to a repository.
 
 Helper Scripts:
-  run.sh    : run the docker container
-  start.sh  : start and get console into the container
-  push.sh   : push the docker image to your docker hub repository
+  run.sh    : Run the docker container
+              and get hints that may help you to set;
+              Duration, Active-data-quota and Log-files-quota
+              for your experiment.
 
-EOHELP
+  start.sh  : Start and get console into the container.
+
+  push.sh   : Push the docker image to your docker hub repository.
+
+DESCRIPTION
+#=cut
+
 exit $1
 }
 
@@ -59,8 +68,8 @@ SIDDEBPACKS="libzmq-ffi-perl"
 VIM='install'
 
 #Applies to run.sh
-#Set to 'yes' to enable, you need to enter your root password
-#Set to anything else to disable
+#Set to 'yes' to enable, you will need to enter your root passwd if not root allready
+#Set to anything else to disable, works on linux, tested on Debian Jessie
 RUN_DOCKER_TRAFFIC_COUNT='yes'
 
 
