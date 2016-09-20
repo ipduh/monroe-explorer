@@ -1,4 +1,4 @@
-#!t/usr/bin/perl
+#!/usr/bin/perl
 # g0, 2016
 
 use strict;
