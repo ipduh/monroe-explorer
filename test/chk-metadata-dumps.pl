@@ -4,7 +4,7 @@
 =head1 Description
   Check metadata dumps by looking at sequence numbers.
   First argument is the dump file.
-  Optional: Use 'v' as the second argument to print the missing sequence numbers.
+  Optional: Use 'v' as the second argument to print missing sequence numbers.
   e.g. $ chk-metadata-dump.pl dump.txt v
 =cut
 
@@ -37,15 +37,25 @@ my @sorted_seq = sort {$a <=> $b} @sequence_numbers;
 
 my @missing_seq_nums = ();
 my $longer_missing_range = 0;
+my @longer_missing_range = ();
+my $pop_missing_range = 0;
 my $index = 0;
 for(@sorted_seq){
   last if($_ == $sorted_seq[$#sorted_seq]);
   if(($sorted_seq[$index+1] - $_) != 1){
     my $missing_range = $sorted_seq[$index+1] - $_;
-    $longer_missing_range = $missing_range if($missing_range > $longer_missing_range);
+    if($missing_range > $longer_missing_range){
+      $longer_missing_range = $missing_range;
+      @longer_missing_range = ();
+      $pop_missing_range = 1;
+    }else{
+      $pop_missing_range = 0;
+    }
     for my $j (($_+1)..($_ + $missing_range -1)){
       push(@missing_seq_nums, $j);
+      push(@longer_missing_range, $j) if($pop_missing_range);
     }
+
   }
   $index++;
 }
@@ -53,6 +63,9 @@ for(@sorted_seq){
 if($ARGV[1] eq 'v'){
   say "\nMissing Sequence Numbers:";
   print "$_\n" for(@missing_seq_nums);
+  say '';
+  say "\nLonger Missing Range:";
+  print "$_\n" for(@longer_missing_range);
 }
 
 
@@ -62,5 +75,5 @@ say     'Missing Messages                : '. "\t" . ($sorted_seq[$#sorted_seq] 
 print   'Missing Messages %              : '. "\t" ;
 printf  ("%.2f", (($sorted_seq[$#sorted_seq] - $sorted_seq[0] - scalar(@sorted_seq)) / scalar(@sorted_seq)));
 say     '%';
-say     'Longer Missing Range of SeqNums : '. "\t" . ($longer_missing_range-2);
+say     'Longer Missing Range of SeqNums : '. "\t" . ($longer_missing_range-1);
 say     '';
