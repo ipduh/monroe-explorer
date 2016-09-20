@@ -1,11 +1,16 @@
-#!/usr/bin/perl
+#!t/usr/bin/perl
 # g0, 2016
 
 use strict;
-use v5.10;
+#use v5.10;
 
 =head1 Description
   Create README.md for this repository
+
+=cut
+
+=head1 Usage
+  Run without arguments in your repository root directory.
 
 =cut
 

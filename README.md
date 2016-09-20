@@ -3,12 +3,12 @@
 ```
 
 Run build.sh without arguments.
-See CONFIG section in source for parameterization.
+To Configure see first CONFIG section in source.
 
 Aims at easing the build of docker images to be deployed in the MONROE testbed.
 Fights carpal tunnel syndrome and other nasty repetitive stress injuries.
 
-Pulls a docker image (monroe/base by default) from the docker hub.
+Pulls a docker image from the docker hub and extends it.
 Creates the container .docker file.
 Builds the docker image.
 Writes helper scripts that ease local testing and pushing to a repository.
@@ -22,6 +22,12 @@ Helper Scripts:
   start.sh  : Start and get console into the container.
 
   push.sh   : Push the docker image to your docker hub repository.
+
+
+
+Author:
+  g0, 2016, github@bot.ipduh.com
+
 
 ```
 
@@ -82,17 +88,19 @@ Author
 ```
 Description
   MONROE metadata subscriber
-  edit config stanza
-  or pass IP_address, Port, Topic and Duration as arguments in the command line e.g.
-  $ metadata-subscriber.pl 172.17.0.1 5556 MONROE.META.DEVICE.MODEM 50
+Usage
+  To configure
+    Edit config stanza in source
+    or
+    pass IP_address, Port, Topic and Duration as arguments in the command line
+    e.g. $ metadata-subscriber.pl 172.17.0.1 5556 MONROE.META.DEVICE.MODEM 50
 Author
  g0, github@bot.ipduh.com
 ```
 
 ## metadata-subscriber.py
 ```
-  A 0MQ Subscriber
-  To parametarize edit CONFIG stanza in source
+  Simple Metadata Subscriber
 
   g0, 2016, github@bot.ipduh.com
 ```
@@ -101,6 +109,8 @@ Author
 ```
 Description
   Create README.md for this repository
+Usage
+  Run without arguments in your repository root directory.
 Author
   g0, github@bot.ipduh.com
 ```

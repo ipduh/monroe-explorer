@@ -3,8 +3,7 @@
 # g0 ,2016
 
 """
-  A 0MQ Subscriber
-  To parametarize edit CONFIG stanza in source
+  Simple Metadata Subscriber
 
   g0, 2016, github@bot.ipduh.com
 """
@@ -12,12 +11,14 @@
 import zmq
 
 # CONFIG
+
 MYIP = '172.17.0.1'
 MYPORT = '5556'
-# CONFIG IS DONE
 
 # Suscribe to all topics with ''
 topic = ''
+
+# CONFIG IS DONE
 
 context = zmq.Context()
 socket = context.socket(zmq.SUB)

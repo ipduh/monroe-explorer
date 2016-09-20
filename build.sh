@@ -8,12 +8,12 @@ function usage
 cat <<DESCRIPTION
 
 Run build.sh without arguments.
-See CONFIG section in source for parameterization.
+To Configure see first CONFIG section in source.
 
 Aims at easing the build of docker images to be deployed in the MONROE testbed.
 Fights carpal tunnel syndrome and other nasty repetitive stress injuries.
 
-Pulls a docker image (monroe/base by default) from the docker hub.
+Pulls a docker image from the docker hub and extends it.
 Creates the container .docker file.
 Builds the docker image.
 Writes helper scripts that ease local testing and pushing to a repository.
@@ -27,6 +27,12 @@ Helper Scripts:
   start.sh  : Start and get console into the container.
 
   push.sh   : Push the docker image to your docker hub repository.
+
+
+
+Author:
+  g0, 2016, github@bot.ipduh.com
+
 
 DESCRIPTION
 #=cut
@@ -198,16 +204,20 @@ if [ "$RUN_DOCKER_TRAFFIC_COUNT"='yes' ]; then
 
 cat <<'EOST0'
 TRAFFICFLAG=1
+
 if [ "$(id -u)" != "0" ]; then
     echo "If you like me to measure your Docker network traffic enter your"
     echo -n "Root "
 fi
+
 TOPNBCC=`su -l root -c "iptables -L DOCKER-ISOLATION -n -v -x |grep RETURN"`
+
 if [ $? -ne "0" ]; then
   TRAFFICFLAG=0
   echo "Unable to measure network traffic."
   echo "Skipping docker network traffic measurements."
 fi
+
 TOPNBYTECOUNT=`echo "${TOPNBCC}" |awk '{print $2}'`
 EOST0
 
@@ -223,12 +233,15 @@ cat <<'EOST1'
 if [ "$(id -u)" != "0" ]; then
     echo -n "Root "
 fi
+
 TAILNBCC=`su -l root -c "iptables -L DOCKER-ISOLATION -n -v -x |grep RETURN"`
+
 if [ $? -ne "0" ]; then
   TRAFFICFLAG=0
   echo "Unable to measure network traffic."
   echo "Skipping docker network traffic measurements."
 fi
+
 TAILNBYTECOUNT=`echo "${TAILNBCC}" |awk '{print $2}'`
 EOST1
 
@@ -239,8 +252,10 @@ cat <<'EOST2'
 
 echo "Contents of ${LOCALRESUTLSDIR}"
 ls -lsht ${LOCALRESUTLSDIR}
+
 echo -n "Size of ${LOCALRESUTLSDIR} in Bytes: ~"
 du -b --max-depth=0 ${LOCALRESUTLSDIR} |awk '{print $1}'
+
 ELAPSED_TIME=$((TAIL-TOP))
 echo "Elapsed container run 'real' time: $ELAPSED_TIME milliseconds."
 
