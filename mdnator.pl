@@ -28,15 +28,11 @@ for my $path (@files){
     if($path =~ /^.*\/(.*\.sh)$/){
       $files{$1} = $path;
       shmd($1, $path);
-      say '1: '. "$1";
-      say '';
       next;
     }else{
       $path =~ /([\w\-]+\.sh)/;
       $files{$1} = './';
       shmd($1, $path);
-      say '2: '. "$1";
-      say '';
       next;
     }
   }
@@ -46,13 +42,11 @@ for my $path (@files){
     if($path =~ /^.*\/(.*\.pl)$/){
       $files{$1} = $path;
       plmd($1, $path);
-      say '1: '. "$1";
       next;
     }else{
       $path =~ /([\w\-]+\.pl)/;
       $files{$1} = './';
       plmd($1, $path);
-      say '2: '. "$1";
       next;
     }
   }
@@ -61,13 +55,11 @@ for my $path (@files){
     if($path =~ /^.*\/(.*\.py)$/){
       $files{$1} = $path;
       pymd($1, $path);
-      say '1: '. "$1";
       next;
     }else{
       $path =~ /([\w\-]+\.py)/;
       $files{$1} = './';
       pymd($1, $path);
-      say '2: '. "$1";
       next;
     }
   }
@@ -76,8 +68,6 @@ for my $path (@files){
 }
 
 
-#say "\n\n";
-#
 #for(keys %files){
 # say "$_ -> $files{$_}";
 #}
@@ -86,7 +76,6 @@ for my $path (@files){
 sub shmd
 {
   my $procflag = 0;
-  say 'shmd:';
 
   push(@md, "\n");
   push(@md, "## $_[0]\n");
@@ -106,7 +95,6 @@ sub shmd
       if($procflag){
         next if($_ =~ /^DESCRIPTION.*/);
         next if($_ =~ /^cat\s<<DESCRIPTION.*/);
-        print $_;
         push(@md, $_);
       }
 
