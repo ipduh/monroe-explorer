@@ -2,6 +2,23 @@
 # yet another hello-world 0MQ client
 # g0, 2016
 
+=head1 Description
+  A multi-threaded OMQ client
+
+=cut
+
+=head1 Usage
+  Edit CONFIG stanza in source
+  or
+  pass IP_addr and Port_num in the command line
+
+=cut
+
+=head1 Author
+  g0, 2016, github@bot.ipduh.com
+
+=cut
+
 use threads qw(stringify);
 use threads::shared;
 use v5.10;
@@ -11,8 +28,10 @@ use ZMQ::FFI;
 use ZMQ::FFI::Constants qw(ZMQ_REQ);
 use Term::ANSIColor;
 
+# CONFIG
 my $ip = '172.17.0.1';
 my $port = '5555';
+# CONFIG IS DONE
 
 if(scalar(@ARGV) > 0){
   if($ARGV[0] =~ /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/ && $1<256 && $2<256 && $3<256 && $4<256){

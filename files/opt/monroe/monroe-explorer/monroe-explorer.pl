@@ -15,26 +15,28 @@ my ($myname, $mypath, $mysuffix) = fileparse( $0, qr/\.[^.]*$/ );
 
 
 =head1 Description
-Logs system and network setup
-runs network probes for numbers and names set in its config, viz:
-traceroute, traceroute over TCP 80, httping, and DNS lookups.
-logs your public IP address, checks if HTTP is proxied
-and if your local caching DNS answers the same way with some open Internet caching DNS service.
+  Logs system and network setup.
 
-=cut
+  Runs network probes for numbers and names set in its config, viz:
+  traceroute, traceroute over TCP 80, httping, and DNS lookups.
 
-=head1 Author
-g0, github@bot.ipduh.com
+  Logs your public IP address, checks if HTTP is proxied
+  and if your local caching DNS answers the same way with some open Internet caching DNS service.
 
 =cut
 
 my $USAGE =<<"EOU";
 =head1 Usage
-Run monroe-explorer.pl without arguments.
-Edit monroe-explorer.conf to configure.
+  Run monroe-explorer.pl without arguments.
+  Edit monroe-explorer.conf to configure.
 
 =cut
 EOU
+
+=head1 Author
+  g0, 2016, github@bot.ipduh.com
+
+=cut
 
 my $myua = "${myname}.v$VERSION";
 my $CONFIG="${mypath}monroe-explorer.conf";

@@ -2,6 +2,24 @@
 # 0MQ Hello World client
 # g0, 2016
 
+=head1 Description
+  A  OMQ client
+  Test OMQ in the container
+
+=cut
+
+=head1 Usage
+  Edit CONFIG stanza in source
+  or
+  pass IP_addr and Port_num in the command line
+
+=cut
+
+=head1 Author
+  g0, 2016, github@bot.ipduh.com
+
+=cut
+
 use strict;
 use warnings;
 use v5.10;
