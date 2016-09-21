@@ -138,6 +138,7 @@ my @netcom = (
               );
 
 my @syscom = (
+              '/bin/cat /monroe/config',
               '/usr/bin/id',
               '/bin/uname -a',
               '/bin/cat /proc/cpuinfo',
