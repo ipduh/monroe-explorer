@@ -34,16 +34,18 @@ Author:
 ## monroe-explorer.pl
 ```
 Description
-      Logs container system and network info and setup.
+      Logs
+        container system and network info and setup,
+        and the container's public IP address(es)
+        without relying on the MONROE 'metadata'.
 
-      Runs network probes for numbers and names set in its config, viz:
-      traceroute, traceroute over TCP 80, httping, and DNS lookups.
-
-      Logs your public IP address.
+      Runs and logs output of
+        network probes for numbers and names set in its config, viz:
+        traceroute, traceroute over TCP 80, httping, and DNS lookups.
 
       Performs various checks, i.e.;
-      checks if HTTP is proxied
-      checks if your caching DNS answers the same way with some open Internet caching DNS service.
+        checks if HTTP is proxied
+        checks if your caching DNS answers the same way with some open Internet caching DNS service.
 
 Usage
     Run monroe-explorer.pl without arguments.
