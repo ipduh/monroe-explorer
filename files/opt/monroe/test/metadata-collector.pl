@@ -2,13 +2,15 @@
 # g0, 2016
 
 =head1 Description
- Collect MONROE metadata for $ttl in seconds
+ Collect MONROE metadata for $ttl in seconds.
+
 
 =cut
 
 =head1 Usage
   You may pass ttl as the first argument in the command line.
   BUT Edit CONFIG stanza in source to configure for deployment in the MONROE testbed.
+
 =cut
 
 =head1 Author

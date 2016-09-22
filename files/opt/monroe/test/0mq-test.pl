@@ -3,8 +3,9 @@
 # g0, 2016
 
 =head1 Description
-  A  OMQ client
-  Test OMQ in the container
+  A  OMQ client;
+  test OMQ in the container
+
 
 =cut
 
@@ -12,6 +13,7 @@
   Edit CONFIG stanza in source
   or
   pass IP_addr and Port_num in the command line
+
 
 =cut
 

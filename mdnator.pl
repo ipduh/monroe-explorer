@@ -7,10 +7,12 @@ use strict;
 =head1 Description
   Create README.md for this repository
 
+
 =cut
 
 =head1 Usage
-  Run without arguments in your repository root directory.
+  Run without arguments in the root directory of your repository.
+
 
 =cut
 

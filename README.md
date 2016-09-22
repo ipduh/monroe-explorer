@@ -34,16 +34,20 @@ Author:
 ## monroe-explorer.pl
 ```
 Description
-  Logs system and network setup.
+      Logs container system and network info and setup.
+
       Runs network probes for numbers and names set in its config, viz:
       traceroute, traceroute over TCP 80, httping, and DNS lookups.
 
-      Logs your public IP address, checks if HTTP is proxied
-      and if your local caching DNS answers the same way with some open Internet caching DNS service.
+      Logs your public IP address.
+
+      Performs various checks, i.e.;
+      checks if HTTP is proxied
+      checks if your caching DNS answers the same way with some open Internet caching DNS service.
 
 Usage
-  Run monroe-explorer.pl without arguments.
-  Edit monroe-explorer.conf to configure.
+    Run monroe-explorer.pl without arguments.
+    Edit monroe-explorer.conf to configure.
 Author
   g0, 2016, github@bot.ipduh.com
 ```
@@ -63,8 +67,8 @@ Author
 ## 0mq-test.pl
 ```
 Description
-  A  OMQ client
-  Test OMQ in the container
+  A  OMQ client;
+  test OMQ in the container
 Usage
   Edit CONFIG stanza in source
   or
@@ -76,7 +80,7 @@ Author
 ## metadata-collector.pl
 ```
 Description
- Collect MONROE metadata for $ttl in seconds
+ Collect MONROE metadata for $ttl in seconds.
 Usage
   You may pass ttl as the first argument in the command line.
   BUT Edit CONFIG stanza in source to configure for deployment in the MONROE testbed.
@@ -89,7 +93,7 @@ Author
 Description
   MONROE metadata subscriber
 Usage
-  To configure
+  To configure;
     Edit config stanza in source
     or
     pass IP_address, Port, Topic and Duration as arguments in the command line
@@ -110,7 +114,7 @@ Author
 Description
   Create README.md for this repository
 Usage
-  Run without arguments in your repository root directory.
+  Run without arguments in the root directory of your repository.
 Author
   g0, github@bot.ipduh.com
 ```

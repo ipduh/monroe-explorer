@@ -4,14 +4,16 @@
 =head1 Description
   MONROE metadata subscriber
 
+
 =cut
 
 =head1 Usage
-  To configure
+  To configure;
     Edit config stanza in source
     or
     pass IP_address, Port, Topic and Duration as arguments in the command line
     e.g. $ metadata-subscriber.pl 172.17.0.1 5556 MONROE.META.DEVICE.MODEM 50
+
 
 =cut
 
