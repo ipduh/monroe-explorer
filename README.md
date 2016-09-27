@@ -37,7 +37,7 @@ Description
       Logs
         container system and network info and setup,
         and the container's public IP address(es)
-        without relying on the MONROE 'metadata'.
+        without relying on the MONROE 'Metadata'.
 
       Runs and logs output of
         network probes for numbers and names set in its config, viz:
@@ -46,6 +46,9 @@ Description
       Performs various checks, i.e.;
         checks if HTTP is proxied
         checks if your caching DNS answers the same way with some open Internet caching DNS service.
+
+      Subscribes to a Monroe Metadata Publisher
+        and collects metadata for COLLECT_METADATA_FOR seconds asynchronously.
 
 Usage
     Run monroe-explorer.pl without arguments.

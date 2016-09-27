@@ -32,6 +32,7 @@ my $port = '5556';
 my $topic = '';
 
 # Set to 'until_sigint' or the duration time in seconds
+#my $duration = 30;
 my $duration = 'until_sigint';
 
 # CONFIG IS DONE
@@ -67,7 +68,10 @@ if($topic eq ''){
   $topic_description = $topic;
 }
 
-say "Subscribing to \" $topic_description \" @ tcp://$ip:$port";
+print "Subscribing to \" $topic_description \" @ tcp://$ip:$port ";
+($duration eq 'until_sigint') ? print "until SIGINT" : print "for $duration sec";
+print "\n\n";
+
 my $context = ZMQ::FFI->new();
 my $subscriber = $context->socket(ZMQ_SUB);
 $subscriber->connect("tcp://$ip:$port");

@@ -3,16 +3,20 @@
 
 use strict;
 #use warnings;
+use ZMQ::FFI;
+use ZMQ::FFI::Constants qw(ZMQ_SUB);
 use LWP;
 use File::Basename;
 use Net::DNS;
 use Data::Dumper;
 use Socket;
 require 'sys/ioctl.ph';
+use AnyEvent;
+use v5.10;
 
+my $AE = 1;
 my $VERSION = '0.1';
 my ($myname, $mypath, $mysuffix) = fileparse( $0, qr/\.[^.]*$/ );
-
 
 =head1 Description
 =cut
@@ -21,7 +25,7 @@ my ($myname, $mypath, $mysuffix) = fileparse( $0, qr/\.[^.]*$/ );
   Logs
     container system and network info and setup,
     and the container's public IP address(es)
-    without relying on the MONROE 'metadata'.
+    without relying on the MONROE 'Metadata'.
 
   Runs and logs output of
     network probes for numbers and names set in its config, viz:
@@ -30,6 +34,11 @@ my ($myname, $mypath, $mysuffix) = fileparse( $0, qr/\.[^.]*$/ );
   Performs various checks, i.e.;
     checks if HTTP is proxied
     checks if your caching DNS answers the same way with some open Internet caching DNS service.
+
+  Subscribes to a Monroe Metadata Publisher
+    and collects metadata for COLLECT_METADATA_FOR seconds asynchronously.
+
+
 
 =cut
 
@@ -51,6 +60,8 @@ EOU
 
 =cut
 
+
+my $start = time;
 my $myua = "${myname}.v$VERSION";
 my $CONFIG="${mypath}monroe-explorer.conf";
 my $DEFAULT_HTTP_TIMEOUT = 60;
@@ -70,10 +81,10 @@ if(@ARGV > 0){
 
 sub logdebug
 {
-  push(@debug_log, $_[0]);
+  ($_[1] eq 't')?push(@debug_log, time.": $_[0]"):push(@debug_log, $_[0]);
 }
 
-logdebug("$myua\n");
+logdebug("$start: $myua \n");
 
 my %UP=();
 unless (open(CONFIG, '<' , $CONFIG)){
@@ -106,6 +117,9 @@ my $DNS_UDP_TIMEOUT = $UP{'DNS_UDP_TIMEOUT'} || $DEFAULT_DNS_UDP_TIMEOUT;
 my @TRACE_ROUTES_TO = split(',',$UP{'TRACE_ROUTES_TO'});
 my @TRACE_ROUTES_TO_NAMES = split(',',$UP{'TRACE_ROUTES_TO_NAMES'});
 my @HTTPING = split(',',$UP{'HTTPING'});
+my $METADATA_TOPIC = $UP{'METADATA_TOPIC'};
+my $METADATA_PUBLISHER = $UP{'METADATA_PUBLISHER'};
+my $COLLECT_METADATA_FOR = $UP{'COLLECT_METADATA_FOR'};
 
 my @goons = split(',', $UP{'INTERNET_CACHING_NS'});
 
@@ -114,6 +128,9 @@ my $DEBUG_LOG = "$LOCAL_RESULTS_DIR/${myname}.debug.log";
 my $NETWORK_SETUP_LOG = "$LOCAL_RESULTS_DIR/${myname}.network-setup.log";
 my $SYSTEM_SETUP_LOG = "$LOCAL_RESULTS_DIR/${myname}.system-setup-status.log";
 my $NETWORK_PROBES_LOG = "$LOCAL_RESULTS_DIR/${myname}.network-probes.log";
+
+my $end = $start + $COLLECT_METADATA_FOR;
+my $METADATA_LOG = "$LOCAL_RESULTS_DIR/${myname}.$start-$end.log";
 
 #Used to find out Internet IP address, http-proxy, InternetIP-for-ldns, dns-mismatch ...
 my $MYIPDOMNAME = 'ipduh.com';
@@ -281,8 +298,8 @@ sub geturl
     return ($resp->decoded_content, $resp->headers_as_string, $peer_addr, $resp->status_line);
   }
 
-  #logdebug("error: $_[0] => $resp->status_line");
-  push(@errors,"error: $_[0] => $resp->status_line");
+  logdebug("error: $_[0] => $resp->status_line");
+  #push(@errors,"error: $_[0] => $resp->status_line");
 
   return (undef, undef, undef, $resp->status_line);
 }
@@ -332,7 +349,7 @@ sub ldns_goodns_mismatch
 sub node_public_ip # default
 {
   my ($content, $headers, $peer_addr, $status) = geturl($MYIPURI);
-  logdebug("Node Internet IP address: $content");
+  logdebug("Node Internet IP address: $content", 't');
   logdebug("$MYIPURI headers: \n $headers") if($VERBOSITY > 2);
   logdebug("$MYIPURI Peer-Addr: $peer_addr") if($VERBOSITY > 4);
   return $content;
@@ -413,43 +430,93 @@ sub network_probes
   write_a_log($NETWORK_PROBES_LOG, \@nprobes_out);
 }
 
-logdebug("\nRun:");
 
+logdebug("\n");
+logdebug("Run", 't');
+
+my $expr = "";
+$expr = "(time - $start) <= $COLLECT_METADATA_FOR";
+
+
+if($METADATA_TOPIC eq "''"){
+  $METADATA_TOPIC = '';
+}
+
+my $context = ZMQ::FFI->new();
+my $subscriber = $context->socket(ZMQ_SUB);
+$subscriber->connect("tcp://$METADATA_PUBLISHER");
+$subscriber->subscribe($METADATA_TOPIC);
+
+logdebug("subscribed to $METADATA_TOPIC @ tcp://$METADATA_PUBLISHER\n", 't');
+my @metadata = ();
+
+my $sub_received_message = 'null';
+my $sub_ready = AnyEvent->condvar;
+
+my $wait_for_sub = AnyEvent->io(
+  fh => $subscriber->get_fd,
+  poll => "r",
+  cb => sub {
+    while($subscriber->has_pollin){
+      $sub_received_message = $subscriber->recv();
+      #say "subscriber: $sub_received_message";
+      push(@metadata, "$sub_received_message\n");
+    }
+    $sub_ready->send unless(eval $expr);
+  }
+);
+
+logdebug("attempting to determine default public IP addr", 't');
 node_public_ip;
 
-logdebug("Local NS:" . (join " - ", @localns) ."\n");
+logdebug("local NS: " . (join " - ", @localns) ."\n", 't');
 
 for my $name ($MYIPDOMNAME,@CHECK_DOMAIN_NAMES){
   my ($ips, $status) = getarecords($name, \@goons);
-  #Can't use an undefined value as an ARRAY reference at /opt/monroe/monroe-explorer/monroe-explorer.pl line 292
+
+  #so we don't use an undefined value as an ARRAY reference
   eval {
-    logdebug("A records for $name: " . (join " - ", @{$ips}) . "\n");
+    logdebug("A records for $name: " . (join " - ", @{$ips}) . "\n", 't');
   } or do {
-    logdebug("No A records for $name\n");
+    logdebug("No A records for $name\n", 't');
   };
+
   logdebug("$name DNS query status : $status\n") if($VERBOSITY > 3);
   if(ldns_goodns_mismatch($name)){
-    logdebug("local and INTERNET_CACHING_NS mismatch for $name\n");
+    logdebug("local and INTERNET_CACHING_NS mismatch for $name\n", 't');
     my ($arecs, $arecstatus) = getarecords($name, \@localns);
-    logdebug("A records for $name from local NS: " . (join " - ", @$arecs). "\n") if($VERBOSITY > 2);
+    logdebug("A records for $name from local NS: " . (join " - ", @$arecs)."\n", 't') if($VERBOSITY > 2);
   }
 }
 
-(is_http_proxied($MYIPDOMNAME)) ? logdebug("http may be proxied\n") : logdebug("http is not proxied for $MYIPDOMNAME\n");
+(is_http_proxied($MYIPDOMNAME)) ? logdebug("http may be proxied\n", 't') : logdebug("http is not proxied for $MYIPDOMNAME\n", 't');
 
 #write_network_setup_log;
 
+logdebug("writting system_setup_log\n", 't');
 write_a_com_log($SYSTEM_SETUP_LOG, \@syscom);
 
+logdebug("writting network_setup_log\n", 't');
 write_a_com_log($NETWORK_SETUP_LOG, \@netcom);
 
+logdebug("probing for public IP_addresses\n", 't');
 log_public_ips();
 
+logdebug("\n");
+logdebug("starting network probes\n", 't');
+
 network_probes();
+logdebug("network probes are done\n", 't');
 
-logdebug(@errors);
-logdebug("${myname}.v$VERSION: I am done.");
+#logdebug(@errors);
 
+$sub_ready->recv;
+undef $wait_for_sub;
+logdebug("writting metadata_log\n", 't');
+write_a_log($METADATA_LOG, \@metadata);
+
+logdebug("writting debug_log\n", 't');
+logdebug("${myname}.v$VERSION: I am done.", 't');
 write_debug_log;
 
 exit 0;
