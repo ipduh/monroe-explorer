@@ -304,4 +304,6 @@ ack "$BASEDOCKERIMAGE" 'pulled'
 docker build --rm=true -f ${DOCKERFILE} -t ${CONTAINER} .
 ack "${CONTAINER}" 'build'
 
+./added_bytes.pl
+
 exit $STATUS

@@ -1,4 +1,18 @@
 
+## added_bytes.pl
+```
+Description
+  Used to find the diff in Bytes of two docker images
+  e.g. monroe-explorer and it's base image (monroe/base)
+Usage
+  Run with no arguments to get docker image names from build.sh
+  or
+  pass explicitly the two images to compare
+  e.g. $ added_bytes monroe-explorer monroe/base
+Author
+  g0, 2016 <github@bot.ipduh.com>
+```
+
 ## build.sh
 ```
 
