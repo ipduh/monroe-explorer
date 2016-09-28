@@ -64,7 +64,7 @@ PUSHER='push.sh'
 TESTRUNNER='run.sh'
 
 #An one space separated list of the Debian packages you want to install into your image
-DEBPACKS="libnet-dns-perl libclass-xsaccessor-perl libimport-into-perl libmoo-perl libnamespace-clean-perl libsub-exporter-perl libtry-tiny-perl libzmq3-dev"
+DEBPACKS="libnet-dns-perl libclass-xsaccessor-perl libimport-into-perl libmoo-perl libnamespace-clean-perl libsub-exporter-perl libtry-tiny-perl libzmq3-dev libasync-interrupt-perl libev-perl libguard-perl libanyevent-perl"
 
 #An one space separated list of the Debian packages you want to install from Testing into your image
 SIDDEBPACKS="libzmq-ffi-perl"
@@ -79,8 +79,8 @@ VIM='install'
 RUN_DOCKER_TRAFFIC_COUNT='yes'
 
 
-#ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/monroe-explorer/monroe-explorer.pl"]'
-ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/test/metadata-collector.pl"]'
+ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/monroe-explorer/monroe-explorer.pl"]'
+#ENTRYPOINT='["dumb-init", "--", "/usr/bin/perl", "/opt/monroe/test/metadata-collector.pl"]'
 
 #
 #CONFIG IS DONE
