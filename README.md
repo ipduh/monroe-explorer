@@ -1,3 +1,28 @@
+##monroe-explorer
+```
+	README.md
+	added_bytes.pl
+	build.sh
+	mdnator.pl
+	files/opt/monroe/monroe-explorer/monroe-explorer.conf
+	files/opt/monroe/monroe-explorer/monroe-explorer.pl
+	files/opt/monroe/test/0mq-test-1.pl
+	files/opt/monroe/test/0mq-test.pl
+	files/opt/monroe/test/metadata-collector.pl
+	files/opt/monroe/test/metadata-subscriber.pl
+	files/opt/monroe/test/metadata-subscriber.py
+	files/preferences
+	files/vimrc
+	test/0mq-tinysrv.pl
+	test/chk-metadata-dumps.pl
+	test/data/1229.1474360673-1474362473.metadata.dump
+	test/data/1231.1474360708-1474362508.metadata.dump
+	test/data/1474284722-1474285322.metadata.dump
+	test/data/63047.1474359893-1474361693.metadata.dump
+	test/data/63047.1474360295-1474362095.metadata.dump
+	test/data/metadata-00.dump
+	test/metadata-publisher.py
+```
 
 ## added_bytes.pl
 ```
