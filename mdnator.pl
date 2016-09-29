@@ -2,6 +2,7 @@
 # g0, 2016
 
 use strict;
+use Cwd;
 #use v5.10;
 
 =head1 Description
@@ -21,11 +22,13 @@ use strict;
 
 =cut
 
-
+my $pwd = getcwd;
+my @dirs = split('/', $pwd);
 my @paths = ();
 my %files = ();
 my @md = ();
 my @files = `git ls-files`;
+my @tree = `git ls-tree -r --full-tree --name-only master .`;
 
 for my $path (@files){
 
@@ -152,8 +155,21 @@ sub pymd
 }
 
 
+my @root = ();
+my @branches = ();
+for(@tree){
+  ($_ =~ /\//)?push(@branches, "\t$_"):push(@root, "\t$_");
+}
+
 open(MD, '>', "README.md") or die "$0 could not write README.md\n $!";
+
+  print MD "##$dirs[$#dirs]\n";
+  print MD "```\n";
+  print MD for(@root);
+  print MD for(@branches);
+  print MD "```\n";
   print MD for(@md);
+
 close(MD);
 
 exit 0;

@@ -122,7 +122,9 @@ fi
 if [ -n "$SIDDEBPACKS" ]; then
   echo 'RUN echo "deb http://httpredir.debian.org/debian testing main" >> /etc/apt/sources.list && apt-get update && apt-get install -y \'
 else
-  echo 'RUN apt-get update && apt-get install -y \'
+  #echo 'RUN apt-get update && apt-get install -y \'
+  #It should not make a difference for monroe-explorer
+  echo 'RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests\'
 fi
 
 for PACKAGE in $DEBPACKS; do
